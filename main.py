@@ -66,6 +66,9 @@ else:
             temp.write('-----END PGP PUBLIC KEY BLOCK-----\n')
             temp.write('EOF\n')
             temp.write('echo \'deb [ arch=amd64 ] http://bitcoinxt.software.s3-website-us-west-2.amazonaws.com/apt wheezy main\' > /etc/apt/sources.list.d/bitcoinxt.list\n')
+        if excludes.get('spotify') is None:
+        	temp.write('sudo apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 --recv-keys BBEBDCB318AD50EC6865090613B00F1FD2C19886\n')
+        	temp.write('sudo echo deb http://repository.spotify.com stable non-free | sudo tee /etc/apt/sources.list.d/spotify.list\n')
         if excludes.get('ksuperkey') is None:
             temp.write('sudo add-apt-repository -y ppa:mehanik/ksuperkey\n')
         if excludes.get('steam') is None:
@@ -73,23 +76,25 @@ else:
             temp.write('sudo sh -c \'echo "deb http://repo.steampowered.com/steam/ precise steam" >> /etc/apt/sources.list.d/steam.list\'\n')
         temp.write('sudo apt-get update\n')
         if None in [excludes.get(x) for x in ['grub-customizer', 'dev-tools', 'chrome', 'bitcoinxt', 'ksuperkey', 'steam']]:
-	    temp.write('sudo apt-get install -y')
+	    	temp.write('sudo apt-get install -y')
 	    if excludes.get('grub-customizer') is None:
-		temp.write(' grub-customizer')
+			temp.write(' grub-customizer')
 	    if excludes.get('chrome') is None:
-		temp.write(' google-chrome-stable')
+			temp.write(' google-chrome-stable')
 	    if excludes.get('bitcoinxt') is None:
-		temp.write(' bitcoinxt')
+			temp.write(' bitcoinxt')
 	    if excludes.get('steam') is None:
-		temp.write(' steam')
+			temp.write(' steam')
 	    if excludes.get('dev-tools') is None:
-		temp.write(' python python-pip python3 python3-pip idle git')
+			temp.write(' python python-pip python3 python3-pip idle git')
 	    if excludes.get('flux') is None:
-                temp.write(' fluxgui')
+            temp.write(' fluxgui')
+        if excludes.get('spotify') is None:
+        	temp.write(' spotify-client')
 	    if excludes.get('ksuperkey') is None:
-		temp.write(' ksuperkey\n')
-		temp.write('ksuperkey')
-	    temp.write('\n')
+			temp.write(' ksuperkey\n')
+			temp.write('ksuperkey')
+	    	temp.write('\n')
         if excludes.get('upgrade') is None:
             temp.write('sudo apt-get upgrade -y\n')
         if excludes.get('autoremove') is None:
