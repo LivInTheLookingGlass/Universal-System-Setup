@@ -84,7 +84,7 @@ else:
        if includes.get('steam'):
          temp.write(' steam')
        if includes.get('dev-tools'):
-         temp.write(' python python-pip python3 python3-pip idle git')
+         temp.write(' python python-pip python3 python3-pip python3-tk idle git')
        if includes.get('redshift'):
             temp.write(' redshit redshift-gtk')
         if includes.get('spotify'):
@@ -131,6 +131,7 @@ def initLinux():
         for bar in lst:
             includes.update(dict(bar.state()))
         root.withdraw()
+        root.quit()
         executeLinux(includes)
 
     checkBars = []
