@@ -22,17 +22,15 @@ else:
         return ret
 
 
-    def writeBashFile(excludes):
+    def writeBashFile(includes):
         temp = open("temp.sh", "wb")
         temp.write("#!/bin/bash\n")
-        if excludes.get('flux') is None:
-            temp.write('sudo add-apt-repository ppa:kilian/f.lux\n')
-        if excludes.get('grub-customizer') is None:
+        if includes.get('grub-customizer'):
             temp.write('sudo add-apt-repository -y ppa:danielrichter2007/grub-customizer\n')
-        if excludes.get('chrome') is None:
+        if includes.get('chrome'):
             temp.write('wget -q -O - https://dl-ssl.google.com/linux/linux_signing_key.pub | sudo apt-key add - \n')
             temp.write('sudo sh -c \'echo "deb http://dl.google.com/linux/chrome/deb/ stable main" >> /etc/apt/sources.list.d/google.list\'\n')
-        if excludes.get('bitcoinxt') is None:
+        if includes.get('bitcoinxt'):
             temp.write('cat <<EOF | apt-key add -\n')
             temp.write('-----BEGIN PGP PUBLIC KEY BLOCK-----\n')
             temp.write('Comment: GPGTools - https://gpgtools.org\n')
@@ -66,39 +64,41 @@ else:
             temp.write('-----END PGP PUBLIC KEY BLOCK-----\n')
             temp.write('EOF\n')
             temp.write('echo \'deb [ arch=amd64 ] http://bitcoinxt.software.s3-website-us-west-2.amazonaws.com/apt wheezy main\' > /etc/apt/sources.list.d/bitcoinxt.list\n')
-        if excludes.get('spotify') is None:
-        	temp.write('sudo apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 --recv-keys BBEBDCB318AD50EC6865090613B00F1FD2C19886\n')
-        	temp.write('sudo echo deb http://repository.spotify.com stable non-free | sudo tee /etc/apt/sources.list.d/spotify.list\n')
-        if excludes.get('ksuperkey') is None:
+        if includes.get('spotify'):
+         temp.write('sudo apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 --recv-keys BBEBDCB318AD50EC6865090613B00F1FD2C19886\n')
+         temp.write('sudo echo deb http://repository.spotify.com stable non-free | sudo tee /etc/apt/sources.list.d/spotify.list\n')
+        if includes.get('ksuperkey'):
             temp.write('sudo add-apt-repository -y ppa:mehanik/ksuperkey\n')
-        if excludes.get('steam') is None:
+        if includes.get('steam'):
             temp.write('sudo apt-key adv --keyserver keyserver.ubuntu.com --recv-keys B05498B7\n')
             temp.write('sudo sh -c \'echo "deb http://repo.steampowered.com/steam/ precise steam" >> /etc/apt/sources.list.d/steam.list\'\n')
         temp.write('sudo apt-get update\n')
-        if None in [excludes.get(x) for x in ['grub-customizer', 'dev-tools', 'chrome', 'bitcoinxt', 'ksuperkey', 'steam']]:
-	    	temp.write('sudo apt-get install -y')
-	    if excludes.get('grub-customizer') is None:
-			temp.write(' grub-customizer')
-	    if excludes.get('chrome') is None:
-			temp.write(' google-chrome-stable')
-	    if excludes.get('bitcoinxt') is None:
-			temp.write(' bitcoinxt')
-	    if excludes.get('steam') is None:
-			temp.write(' steam')
-	    if excludes.get('dev-tools') is None:
-			temp.write(' python python-pip python3 python3-pip idle git')
-	    if excludes.get('flux') is None:
-            temp.write(' fluxgui')
-        if excludes.get('spotify') is None:
-        	temp.write(' spotify-client')
-	    if excludes.get('ksuperkey') is None:
-			temp.write(' ksuperkey\n')
-			temp.write('ksuperkey')
-	    	temp.write('\n')
-        if excludes.get('upgrade') is None:
+        if False in [includes.get(x) is None for x in ['grub-customizer', 'dev-tools', 'chrome', 'bitcoinxt', 'ksuperkey', 'steam', 'redshift']]:
+         temp.write('sudo apt-get install -y')
+       if includes.get('grub-customizer'):
+         temp.write(' grub-customizer')
+       if includes.get('chrome'):
+         temp.write(' google-chrome-stable')
+       if includes.get('bitcoinxt'):
+         temp.write(' bitcoinxt')
+       if includes.get('steam'):
+         temp.write(' steam')
+       if includes.get('dev-tools'):
+         temp.write(' python python-pip python3 python3-pip idle git')
+       if includes.get('redshift'):
+            temp.write(' redshit redshift-gtk')
+        if includes.get('spotify'):
+         temp.write(' spotify-client')
+       if includes.get('ksuperkey'):
+         temp.write(' ksuperkey\n')
+         temp.write('ksuperkey')
+         temp.write('\n')
+        if includes.get('upgrade'):
             temp.write('sudo apt-get upgrade -y\n')
-        if excludes.get('autoremove') is None:
+        if includes.get('autoremove'):
             temp.write('sudo apt-get autoremove -y\n')
+        if includes.get('dist-upgrade')
+            temp.write('sudo apt-get dist-upgrade -y\n')
         temp.flush()
         temp.close()
         
@@ -123,7 +123,33 @@ def executeWindows():
         unScheduleEnding()
 
 
-def executeLinux():
+def initLinux():
+    from functools import partial
+    root = tk.Tk()
+    def parseAndExecute(lst, root):
+        includes = {}
+        for bar in lst:
+            includes.update(dict(bar.state()))
+        root.withdraw()
+        executeLinux(includes)
+
+    checkBars = []
+    checkBars.append(Checkbar(root, ['grub-customizer', 'dev-tools']))
+    checkBars.append(Checkbar(root, ['steam', 'chrome', 'spotify']))
+    checkBars.append(Checkbar(root, ['bitcoinxt', 'redshift', 'ksuperkey']))
+    checkBars.append(Checkbar(root, ['upgrade', 'autoremove', 'dist-upgrade']))
+    for bar in checkBars:
+        bar.pack(side=tk.TOP,  fill=tk.X)
+
+
+    checkBars[-1].config(relief=tk.GROOVE, bd=2)
+    execute = partial(parseAndExecute, lst=checkBars, root=root)
+    tk.Button(root, text='Quit', command=root.quit).pack(side=tk.RIGHT)
+    tk.Button(root, text='Install', command=execute).pack(side=tk.RIGHT)
+    root.mainloop()
+
+
+def executeLinux(includes):
     print("This program will install repositories and software on your machine without security policy overrides. If you do not consent to this, exit now.")
     import time
     for i in range(10):
@@ -137,12 +163,33 @@ def executeLinux():
         print("Try again when you have root access")
     else:
         print("Sudo access granted")
-        writeBashFile({})
+        writeBashFile(includes)
         call(["sudo", "sh", "temp.sh"])
         killBashFile()
+
+
+import sys
+if sys.version_info[0] > 2:
+    import tkinter as tk
+else:
+    import Tkinter as tk
+
+class Checkbar(tk.Frame):
+    def __init__(self, parent=None, picks=[], side=tk.LEFT, anchor=tk.W):
+        tk.Frame.__init__(self, parent)
+        self.vars = []
+        self.picks = picks
+        for pick in picks:
+            var = tk.IntVar()
+            chk = tk.Checkbutton(self, text=pick, variable=var)
+            chk.pack(side=side, anchor=anchor, expand=tk.YES)
+            self.vars.append(var)
+    def state(self):
+        return zip(self.picks, map((lambda var: var.get()), self.vars))
+
 
 if __name__ == "__main__":
     if sys.platform == 'win32':
         executeWindows()
     else:
-        executeLinux()
+        initLinux()
