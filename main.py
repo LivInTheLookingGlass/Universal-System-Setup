@@ -109,7 +109,7 @@ else:
 
 def executeWindows():
     import win32com.shell.shell as shell
-    file_name = "InstallationAutomation.py"
+    file_name = __file__.replace('.pyc', '.py')
 
     if sys.argv[-1] != 'asadmin':
         script = os.path.abspath(sys.argv[0])
