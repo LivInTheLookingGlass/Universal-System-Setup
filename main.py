@@ -73,7 +73,7 @@ else:
             temp.write('sudo apt-key adv --keyserver keyserver.ubuntu.com --recv-keys B05498B7\n')
             temp.write('sudo sh -c \'echo "deb http://repo.steampowered.com/steam/ precise steam" >> /etc/apt/sources.list.d/steam.list\'\n')
         temp.write('sudo apt-get update\n')
-        if False in [includes.get(x) is None for x in ['grub-customizer', 'dev-tools', 'chrome', 'bitcoinxt', 'ksuperkey', 'steam', 'redshift']]:
+        if False in (bool(includes.get(x)) for x in ['grub-customizer', 'dev-tools', 'chrome', 'bitcoinxt', 'ksuperkey', 'steam', 'redshift']):
          temp.write('sudo apt-get install -y')
        if includes.get('grub-customizer'):
          temp.write(' grub-customizer')
